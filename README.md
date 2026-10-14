@@ -47,8 +47,10 @@ open http://localhost:8000.
 
 ## Installation
 
-At the top of `index.php` file, change `$base_url` variable to point to your
-site.
+At the top of `index.php`, `$base_url` is auto-detected from the request, so
+the app works on any domain, subdirectory or port with no configuration.
+Only set it manually (e.g. `'https://notes.example.com'`) if you are behind a
+proxy that hides the original host, or to force a canonical URL.
 
 Make sure the web server is allowed to write to the `_tmp` directory.
 

@@ -1,7 +1,20 @@
 <?php
 
 // Base URL of the website, without trailing slash.
-$base_url = 'https://notes.orga.cat';
+// Leave empty to auto-detect it from the request (works on any domain,
+// subdirectory, HTTP or HTTPS, also behind reverse proxies).
+$base_url = '';
+
+if ($base_url === '') {
+    $scheme = 'http';
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        $scheme = 'https';
+    } elseif (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') {
+        $scheme = 'https';
+    }
+    $dir = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+    $base_url = $scheme . '://' . $_SERVER['HTTP_HOST'] . $dir;
+}
 
 // Path to the directory to save the notes in, without trailing slash.
 // Should be outside of the document root, if possible.
@@ -150,9 +163,9 @@ if (isset($_GET['raw']) || strpos($_SERVER['HTTP_USER_AGENT'], 'curl') === 0 || 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php print $_GET['note']; ?></title>
-    <link rel="icon" href="<?php print $base_url; ?>/favicon.ico" sizes="any">
-    <link rel="icon" href="<?php print $base_url; ?>/favicon.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="<?php print $base_url; ?>/styles.css">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
@@ -192,9 +205,9 @@ if (isset($_GET['raw']) || strpos($_SERVER['HTTP_USER_AGENT'], 'curl') === 0 || 
     </div>
     <pre id="printable"></pre>
     <div id="status"></div>
-    <script src="<?php print $base_url; ?>/lib/marked.min.js"></script>
-    <script src="<?php print $base_url; ?>/lib/purify.min.js"></script>
-    <script src="<?php print $base_url; ?>/lib/highlight.min.js"></script>
-    <script src="<?php print $base_url; ?>/script.js"></script>
+    <script src="lib/marked.min.js"></script>
+    <script src="lib/purify.min.js"></script>
+    <script src="lib/highlight.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
