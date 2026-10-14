@@ -25,6 +25,10 @@ See demo at https://notes.orga.cat or https://notes.orga.cat/whatever.
 - **Image storage**: uploaded images are kept permanently by default. Set
   `$image_ttl_days` at the top of `index.php` (e.g. `7`) to auto-purge
   images older than that many days instead.
+- **Orphan image cleanup**: images are tracked by reference — when a note is
+  deleted or an image is removed from every note, the image file is deleted
+  automatically. Images uploaded less than one hour ago are always kept, to
+  protect uploads whose note has not been saved yet.
 
 ## Note logic (same as the original notepad)
 

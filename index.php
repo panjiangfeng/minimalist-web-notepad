@@ -32,6 +32,36 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 header('Pragma: no-cache');
 header('Expires: 0');
 
+// Extract the image file names referenced in a note's content.
+function extract_image_names($content) {
+    preg_match_all('/img=([a-zA-Z0-9_-]+\.(?:png|jpe?g|gif|webp|svg))/', $content, $m);
+    return array_unique($m[1]);
+}
+
+// Delete images that are no longer referenced by any note.
+// Images uploaded less than one hour ago are always kept, to avoid deleting
+// a picture whose note has not been auto-saved yet.
+function cleanup_orphan_images($save_path) {
+    $dir = $save_path . '/i';
+    if (!is_dir($dir)) {
+        return;
+    }
+    $all_notes = '';
+    foreach (glob($save_path . '/*') ?: [] as $file) {
+        if (is_file($file)) {
+            $all_notes .= file_get_contents($file);
+        }
+    }
+    $expire_before = time() - 3600;
+    foreach (glob($dir . '/*') ?: [] as $image) {
+        $name = basename($image);
+        if (strpos($all_notes, 'img=' . $name) === false
+            && filemtime($image) < $expire_before) {
+            @unlink($image);
+        }
+    }
+}
+
 // Allowed image types: extension => MIME type.
 $image_types = [
     'png'  => 'image/png',
@@ -117,14 +147,19 @@ if (isset($_FILES['image'])) {
 
     if (move_uploaded_file($file['tmp_name'], $dir . '/' . $name)) {
 
-        // Occasionally purge expired images if a TTL is configured.
-        if ($image_ttl_days > 0 && mt_rand(1, 20) === 1) {
-            $expire_before = time() - $image_ttl_days * 86400;
-            foreach (glob($dir . '/*') ?: [] as $old) {
-                if (is_file($old) && filemtime($old) < $expire_before) {
-                    @unlink($old);
+        // Occasionally run maintenance: purge expired images if a TTL is
+        // configured, and remove images no longer referenced by any note
+        // (e.g. an upload that was never saved into a note).
+        if (mt_rand(1, 20) === 1) {
+            if ($image_ttl_days > 0) {
+                $expire_before = time() - $image_ttl_days * 86400;
+                foreach (glob($dir . '/*') ?: [] as $old) {
+                    if (is_file($old) && filemtime($old) < $expire_before) {
+                        @unlink($old);
+                    }
                 }
             }
+            cleanup_orphan_images($save_path);
         }
 
         print json_encode(['url' => $base_url . '/index.php?img=' . $name]);
@@ -137,12 +172,18 @@ if (isset($_FILES['image'])) {
 
 if (isset($_POST['text'])) {
 
+    $old_content = is_file($path) ? file_get_contents($path) : '';
+
     // Update file.
     file_put_contents($path, $_POST['text']);
 
     // If provided input is empty, delete file.
     if (!strlen($_POST['text'])) {
         unlink($path);
+        cleanup_orphan_images($save_path);
+    } elseif (array_diff(extract_image_names($old_content), extract_image_names($_POST['text']))) {
+        // Some image references were removed from this note.
+        cleanup_orphan_images($save_path);
     }
     die;
 }
