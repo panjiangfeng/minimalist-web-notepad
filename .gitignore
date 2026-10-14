@@ -1,0 +1,6 @@
+# Local note storage and demo files.
+_tmp/*
+!_tmp/.htaccess
+
+# WorkBuddy workspace data.
+.workbuddy/

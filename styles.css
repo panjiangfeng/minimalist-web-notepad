@@ -2,45 +2,352 @@
 
 body {
     margin: 0;
-    background: #ebeef1;
+    background: #eceef1;
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
 }
+
+/* ------------------------------------------------- layout shell */
+
 .container {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    bottom: 20px;
-    left: 20px;
+    top: 14px;
+    right: 14px;
+    bottom: 14px;
+    left: 14px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
 }
+
+.workspace {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+/* ------------------------------------------------- toolbar */
+
+.toolbar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 42px;
+    padding: 0 10px;
+    background: #fbfbfc;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.tool-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    padding: 0 6px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #5f6368;
+    cursor: pointer;
+}
+.tool-btn:hover {
+    background: #eceef1;
+    color: #202124;
+}
+.tool-btn:active {
+    background: #e0e3e7;
+}
+.tool-btn svg {
+    display: block;
+}
+
+.glyph {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 14px;
+    line-height: 1;
+}
+.glyph.b {
+    font-weight: 700;
+}
+.glyph.i {
+    font-style: italic;
+}
+.glyph.s {
+    text-decoration: line-through;
+}
+
+.sep {
+    flex: none;
+    width: 1px;
+    height: 18px;
+    background: #dde0e4;
+    margin: 0 6px;
+}
+
+.flex-space {
+    flex: 1;
+}
+
+#count {
+    color: #9aa0a6;
+    font-size: 12px;
+    margin-right: 10px;
+    white-space: nowrap;
+}
+
+.mode-switch {
+    flex: none;
+    display: flex;
+    background: #eceef1;
+    border-radius: 8px;
+    padding: 2px;
+}
+.mode-btn {
+    border: none;
+    background: transparent;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #5f6368;
+    cursor: pointer;
+}
+.mode-btn.active {
+    background: #fff;
+    color: #202124;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* ------------------------------------------------- editor & preview */
+
 #content {
-    font-size: 100%;
+    flex: 1 1 50%;
+    min-width: 0;
     margin: 0;
-    padding: 20px;
-    overflow-y: auto;
-    resize: none;
-    width: 100%;
-    height: 100%;
-    min-height: 100%;
-    box-sizing: border-box;
-    border: 1px #ddd solid;
+    padding: 18px 22px;
+    border: none;
     outline: none;
+    resize: none;
+    box-sizing: border-box;
+    background: #fff;
+    color: #202124;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-y: auto;
 }
+
+#preview {
+    flex: 1 1 50%;
+    min-width: 0;
+    display: none;
+    overflow-y: auto;
+    padding: 18px 26px;
+    box-sizing: border-box;
+    background: #fff;
+    color: #24292f;
+    font-size: 15px;
+    line-height: 1.7;
+    word-break: break-word;
+}
+
+/* View modes */
+body[data-mode="edit"] #content {
+    flex-basis: 100%;
+}
+body[data-mode="edit"] #preview {
+    display: none;
+}
+body[data-mode="split"] #preview {
+    display: block;
+    border-left: 1px solid #e8eaed;
+}
+body[data-mode="preview"] #content {
+    display: none;
+}
+body[data-mode="preview"] #preview {
+    display: block;
+    flex-basis: 100%;
+}
+
+/* On narrow screens, split stacks vertically. */
+@media (max-width: 760px) {
+    body[data-mode="split"] .workspace {
+        flex-direction: column;
+    }
+    body[data-mode="split"] #preview {
+        border-left: none;
+        border-top: 1px solid #e8eaed;
+    }
+}
+
+/* ------------------------------------------------- markdown typography */
+
+#preview > :first-child {
+    margin-top: 0;
+}
+#preview h1,
+#preview h2 {
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #e5e7eb;
+}
+#preview code {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 0.9em;
+    background: #f0f1f3;
+    border-radius: 4px;
+    padding: 2px 5px;
+}
+#preview pre {
+    background: #f0f1f3;
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+}
+#preview pre code {
+    background: none;
+    padding: 0;
+}
+#preview blockquote {
+    margin: 0;
+    padding: 0 1em;
+    border-left: 4px solid #d0d4da;
+    color: #57606a;
+}
+#preview table {
+    border-collapse: collapse;
+}
+#preview th,
+#preview td {
+    border: 1px solid #d0d7de;
+    padding: 6px 12px;
+}
+#preview th {
+    background: #f6f8fa;
+}
+#preview img {
+    max-width: 100%;
+    border-radius: 4px;
+}
+#preview a {
+    color: #0969da;
+}
+#preview hr {
+    border: none;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ------------------------------------------------- upload status */
+
+#status {
+    position: fixed;
+    bottom: 26px;
+    right: 26px;
+    z-index: 10;
+    padding: 6px 16px;
+    border-radius: 16px;
+    background: rgba(32, 33, 36, 0.88);
+    color: #f8f8f2;
+    font-size: 0.85em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+#status.visible {
+    opacity: 1;
+}
+
 #printable {
     display: none;
 }
 
+/* ------------------------------------------------- dark theme */
+
 @media (prefers-color-scheme: dark) {
     body {
-        background: #383934;
+        background: #1b1c19;
+    }
+    .container {
+        background: #282923;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+    }
+    .toolbar {
+        background: #24251f;
+        border-bottom-color: #3a3b35;
+    }
+    .tool-btn {
+        color: #a8a99e;
+    }
+    .tool-btn:hover {
+        background: #33342d;
+        color: #f8f8f2;
+    }
+    .tool-btn:active {
+        background: #3d3e36;
+    }
+    .sep {
+        background: #3a3b35;
+    }
+    .mode-switch {
+        background: #33342d;
+    }
+    .mode-btn {
+        color: #a8a99e;
+    }
+    .mode-btn.active {
+        background: #45463f;
+        color: #f8f8f2;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
     #content {
         background: #282923;
         color: #f8f8f2;
-        border: 0;
+    }
+    #preview {
+        background: #282923;
+        color: #e6e6df;
+        border-left-color: #3a3b35;
+    }
+    body[data-mode="split"] #preview {
+        border-left-color: #3a3b35;
+    }
+    #preview h1,
+    #preview h2 {
+        border-bottom-color: #44453e;
+    }
+    #preview code,
+    #preview pre {
+        background: #1f201b;
+    }
+    #preview blockquote {
+        border-left-color: #55564f;
+        color: #a8a99e;
+    }
+    #preview th,
+    #preview td {
+        border-color: #44453e;
+    }
+    #preview th {
+        background: #33342d;
+    }
+    #preview a {
+        color: #6cb2f0;
+    }
+    #preview hr {
+        border-top-color: #44453e;
     }
 }
 
+/* ------------------------------------------------- print */
+
 @media print {
     .container {
+        display: none;
+    }
+    #status {
         display: none;
     }
     #printable {
@@ -48,4 +355,38 @@ body {
         white-space: pre-wrap;
         word-break: break-word;
     }
+}
+
+/* ------------------------------------------------- syntax highlighting (highlight.js, GitHub theme) */
+
+pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5px}/*!
+  Theme: GitHub
+  Description: Light theme as seen on github.com
+  Author: github.com
+  Maintainer: @Hirse
+  Updated: 2021-05-15
+
+  Outdated base version: https://github.com/primer/github-syntax-light
+  Current colors taken from GitHub's CSS
+*/.hljs{color:#24292e;background:#fff}.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language_{color:#d73a49}.hljs-title,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-title.function_{color:#6f42c1}.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable{color:#005cc5}.hljs-meta .hljs-string,.hljs-regexp,.hljs-string{color:#032f62}.hljs-built_in,.hljs-symbol{color:#e36209}.hljs-code,.hljs-comment,.hljs-formula{color:#6a737d}.hljs-name,.hljs-quote,.hljs-selector-pseudo,.hljs-selector-tag{color:#22863a}.hljs-subst{color:#24292e}.hljs-section{color:#005cc5;font-weight:700}.hljs-bullet{color:#735c0f}.hljs-emphasis{color:#24292e;font-style:italic}.hljs-strong{color:#24292e;font-weight:700}.hljs-addition{color:#22863a;background-color:#f0fff4}.hljs-deletion{color:#b31d28;background-color:#ffeef0}
+#preview pre code.hljs {
+    padding: 0;
+    background: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5px}/*!
+  Theme: GitHub Dark
+  Description: Dark theme as seen on github.com
+  Author: github.com
+  Maintainer: @Hirse
+  Updated: 2021-05-15
+
+  Outdated base version: https://github.com/primer/github-syntax-dark
+  Current colors taken from GitHub's CSS
+*/.hljs{color:#c9d1d9;background:#0d1117}.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language_{color:#ff7b72}.hljs-title,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-title.function_{color:#d2a8ff}.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable{color:#79c0ff}.hljs-meta .hljs-string,.hljs-regexp,.hljs-string{color:#a5d6ff}.hljs-built_in,.hljs-symbol{color:#ffa657}.hljs-code,.hljs-comment,.hljs-formula{color:#8b949e}.hljs-name,.hljs-quote,.hljs-selector-pseudo,.hljs-selector-tag{color:#7ee787}.hljs-subst{color:#c9d1d9}.hljs-section{color:#1f6feb;font-weight:700}.hljs-bullet{color:#f2cc60}.hljs-emphasis{color:#c9d1d9;font-style:italic}.hljs-strong{color:#c9d1d9;font-weight:700}.hljs-addition{color:#aff5b4;background-color:#033a16}.hljs-deletion{color:#ffdcd7;background-color:#67060c}
+#preview pre code.hljs {
+    padding: 0;
+    background: transparent;
+}
 }
